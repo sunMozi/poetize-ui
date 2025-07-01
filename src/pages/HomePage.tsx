@@ -1,17 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ProfileCard from '../components/common/ProfileCard';
 import ArticleGrid from '../components/common/article/ArticleGrid';
 import NoticeBar from '../components/common/NoticeBar';
 import SectionHeader from '../components/common/SectionHeader';
 import TypingText from '../components/common/TypingText';
+import http from '../utils/http';
+
+// Profile 数据类型
+interface SocialLink {
+  label: string;
+  url: string;
+  icon: string;
+}
+
+interface UserProfile {
+  avatarUrl: string;
+  name: string;
+  bio: string;
+  articlesCount: number;
+  categoriesCount: number;
+  views: number;
+  socialLinks: SocialLink[];
+}
 
 const HomePage: React.FC = () => {
-  const webTitle = ['我的', '博客', '首页'];
+  const webTitle = "Zyan's  Space".split('');
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const showAside = true;
+
+  useEffect(() => {
+    http
+      .get<UserProfile>('/webInfo/profile')
+      .then((data) =>
+        setProfile({
+          ...data,
+          articlesCount: data.articlesCount || 0,
+          categoriesCount: data.categoriesCount || 0,
+          views: data.views || 0,
+        })
+      )
+      .catch((err) => {
+        console.error('加载用户信息失败', err);
+      });
+  }, []);
 
   const generateArticles = (categoryId: number) => {
     return Array.from({ length: 3 }).map((_, idx) => ({
-      id: categoryId * 100 + idx + 1, // 为不同分类生成不同 ID，避免重复
+      id: categoryId * 100 + idx + 1,
       title: `文章标题 ${categoryId}-${idx + 1}`,
       description:
         '这是一篇关于前沿技术的深度解析文章，探讨了最新框架的应用场景和性能优化技巧...',
@@ -31,28 +66,27 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-base-100">
       {/* 首页背景图 */}
-      <div className="relative w-full overflow-hidden h-[80vh] bg-base-200">
+      <div className="relative w-full overflow-hidden h-[50vh] bg-base-200">
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70 z-[1]" />
         <img
-          src="https://cdn.pixabay.com/photo/2020/03/11/15/16/couple-4922442_1280.jpg"
+          src="https://images.pexels.com/photos/1435075/pexels-photo-1435075.jpeg"
           alt="背景图"
           className="absolute inset-0 object-cover w-full h-full animate-fadeIn"
           loading="lazy"
           onError={(e) => {
             (e.target as HTMLImageElement).src =
-              'https://via.placeholder.com/1920x1080?text=备用背景图';
+              'https://images.pexels.com/photos/1485894/pexels-photo-1485894.jpeg';
           }}
         />
 
-        {/* 首页文字区 */}
         <section className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center myCenter">
           <h1 className="flex justify-center mb-8 space-x-1 text-4xl font-bold md:text-6xl playful">
             {webTitle.map((char, idx) => (
               <span
                 key={idx}
-                className="inline-block text-white animate-float"
+                className="inline-block font-mono text-white animate-float"
                 style={{
                   animationDelay: `${idx * 0.1}s`,
                   textShadow: '0 2px 10px rgba(0,0,0,0.3)',
@@ -81,38 +115,23 @@ const HomePage: React.FC = () => {
         </section>
       </div>
 
-      {/* 主页内容容器 */}
       <div className="flex gap-6 px-4 mx-auto mt-10 page-container-wrap max-w-7xl">
         {showAside && (
-          <aside className="hidden lg:block w-150 sticky top-24 h-[calc(100vh-6rem)] overflow-auto">
+          <aside className="hidden lg:block w-200 sticky top-24 h-[calc(100vh-6rem)] overflow-auto">
             <div className="p-6 border shadow-lg text-base-content bg-gradient-to-b from-base-100 to-base-200 rounded-2xl border-base-300">
-              <ProfileCard
-                avatarUrl="https://via.placeholder.com/150"
-                name="张三"
-                bio="前端开发工程师，热爱技术与设计"
-                socialLinks={[
-                  {
-                    label: 'GitHub',
-                    url: '#',
-                    colorClass: 'bg-primary hover:bg-primary-focus',
-                  },
-                  {
-                    label: 'Twitter',
-                    url: '#',
-                    colorClass: 'bg-secondary hover:bg-secondary-focus',
-                  },
-                  {
-                    label: 'LinkedIn',
-                    url: '#',
-                    colorClass: 'bg-accent hover:bg-accent-focus',
-                  },
-                  {
-                    label: 'Bilibili',
-                    url: '#',
-                    colorClass: 'bg-info hover:bg-info-focus',
-                  },
-                ]}
-              />
+              {profile ? (
+                <ProfileCard
+                  avatarUrl={profile.avatarUrl}
+                  name={profile.name}
+                  bio={profile.bio}
+                  socialLinks={profile.socialLinks}
+                  articlesCount={profile.articlesCount}
+                  categoriesCount={profile.categoriesCount}
+                  views={profile.views}
+                />
+              ) : (
+                <div className="text-center text-gray-400">加载中...</div>
+              )}
             </div>
           </aside>
         )}
@@ -143,7 +162,7 @@ const HomePage: React.FC = () => {
           </section>
         </main>
       </div>
-    </>
+    </div>
   );
 };
 

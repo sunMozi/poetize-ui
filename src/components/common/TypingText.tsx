@@ -32,7 +32,7 @@ const TypingText: React.FC<TypingTextProps> = ({ phrases }) => {
 
   return (
     <div className="w-full max-w-2xl px-4 mt-4 cursor-pointer">
-      <div className="inline-block p-6 border shadow-xl rounded-2xl bg-white/10 backdrop-blur-sm border-white/20">
+      <div className="inline-block p-6 shadow-xl ">
         <h3 className="font-mono text-xl md:text-2xl text-white min-h-[2.5rem]">
           {typedText}
           <span className="ml-1 animate-pulse">|</span>

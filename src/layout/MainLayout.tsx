@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import ThemeSwitcher from '../components/common/ThemeSwitcher';
 
 const navItems = [
   { label: '首页', path: '/', icon: '🏡' },
@@ -136,6 +137,7 @@ const MainLayout: React.FC = () => {
               </Link>
             )
           )}
+          <ThemeSwitcher />
         </div>
       </div>
 
