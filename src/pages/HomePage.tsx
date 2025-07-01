@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const currentPhrase = phrases[currentPhraseIndex];
     let charIndex = 0;
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
 
     const type = () => {
       if (charIndex <= currentPhrase.length) {
@@ -101,7 +101,7 @@ const HomePage: React.FC = () => {
       <div className="flex gap-6 px-4 mx-auto mt-10 page-container-wrap max-w-7xl">
         {/* 侧边栏 */}
         {showAside && (
-          <aside className="hidden  lg:block w-150 sticky top-24 h-[calc(100vh-6rem)] overflow-auto">
+          <aside className="hidden  lg:block w-[150px] sticky top-24 h-[calc(100vh-6rem)] overflow-auto">
             <div className="p-6 border shadow-lg text-base-content bg-gradient-to-b from-base-100 to-base-200 rounded-2xl border-base-300">
               {/* 分类标题 */}
               <h3 className="pb-3 mb-5 text-xl font-bold text-center border-b border-base-300">
