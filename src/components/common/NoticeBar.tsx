@@ -1,39 +1,83 @@
-import React from 'react';
+import React, { useState } from 'react';
+import type { Notice } from '../../types/notice';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  AlertTriangle,
+  ChevronDown,
+} from 'lucide-react';
 
 interface NoticeBarProps {
-  notices: string[];
+  notices: Notice[];
 }
 
+const typeStyles: Record<
+  Notice['type'],
+  { bg: string; border: string; icon: React.ReactNode }
+> = {
+  info: {
+    bg: 'bg-blue-50',
+    border: 'border-blue-300',
+    icon: <Info className="w-5 h-5 text-blue-500" />,
+  },
+  warning: {
+    bg: 'bg-yellow-50',
+    border: 'border-yellow-300',
+    icon: <AlertTriangle className="w-5 h-5 text-yellow-500" />,
+  },
+  error: {
+    bg: 'bg-red-50',
+    border: 'border-red-300',
+    icon: <AlertCircle className="w-5 h-5 text-red-500" />,
+  },
+  success: {
+    bg: 'bg-green-50',
+    border: 'border-green-300',
+    icon: <CheckCircle2 className="w-5 h-5 text-green-500" />,
+  },
+};
+
 const NoticeBar: React.FC<NoticeBarProps> = ({ notices }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!notices.length) return null;
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % notices.length);
+  };
+
+  const notice = notices[currentIndex];
+  const style = typeStyles[notice.type];
+
   return (
-    <section className="p-5 mb-8 border shadow rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-      <div className="flex items-start">
-        <div className="mt-1 mr-3 text-primary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+    <section className="mb-8 space-y-4">
+      <h3 className="text-lg font-bold text-base-content">公告</h3>
+      <div
+        className={`p-4 border-l-4 rounded-xl shadow-sm ${style.bg} ${style.border}`}
+      >
+        <div className="flex items-start space-x-3">
+          <div className="mt-1">{style.icon}</div>
+          <div className="flex-1">
+            <h4 className="font-semibold text-base-content">{notice.title}</h4>
+            <div
+              className="mt-1 prose-sm prose max-w-none text-base-content"
+              dangerouslySetInnerHTML={{ __html: notice.content }}
             />
-          </svg>
-        </div>
-        <div className="text-base-content">
-          <h3 className="mb-1 text-lg font-bold">网站公告</h3>
-          <ul className="space-y-2 text-sm">
-            {notices.map((notice, idx) => (
-              <li key={idx} className="flex items-start">
-                <span className="inline-block w-2 h-2 mt-2 mr-2 rounded-full bg-primary"></span>
-                <span>{notice}</span>
-              </li>
-            ))}
-          </ul>
+            <div className="mt-2 text-xs text-gray-500">
+              有效期: {new Date(notice.startTime).toLocaleString()} —{' '}
+              {notice.endTime
+                ? new Date(notice.endTime).toLocaleString()
+                : '永久'}
+            </div>
+          </div>
+          <button
+            aria-label="查看下一条公告"
+            onClick={handleNext}
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100"
+          >
+            <ChevronDown className="w-4 h-4 text-gray-500" />
+          </button>
         </div>
       </div>
     </section>

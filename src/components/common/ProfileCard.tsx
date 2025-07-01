@@ -1,13 +1,7 @@
 import React, { type JSX } from 'react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa6';
 import { BiBold } from 'react-icons/bi';
-
-// 数据接口：后端返回的 icon 是字符串
-interface SocialLink {
-  label: string;
-  url: string;
-  icon: string; // icon 名称
-}
+import type { SocialLink } from '../../types/user';
 
 interface ProfileCardProps {
   avatarUrl: string;

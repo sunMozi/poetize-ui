@@ -5,27 +5,13 @@ import NoticeBar from '../components/common/NoticeBar';
 import SectionHeader from '../components/common/SectionHeader';
 import TypingText from '../components/common/TypingText';
 import http from '../utils/http';
-
-// Profile 数据类型
-interface SocialLink {
-  label: string;
-  url: string;
-  icon: string;
-}
-
-interface UserProfile {
-  avatarUrl: string;
-  name: string;
-  bio: string;
-  articlesCount: number;
-  categoriesCount: number;
-  views: number;
-  socialLinks: SocialLink[];
-}
+import type { UserProfile } from '../types/user';
+import type { Notice } from '../types/notice';
 
 const HomePage: React.FC = () => {
   const webTitle = "Zyan's  Space".split('');
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [notices, setNotices] = useState<Notice[]>([]);
   const showAside = true;
 
   useEffect(() => {
@@ -41,6 +27,21 @@ const HomePage: React.FC = () => {
       )
       .catch((err) => {
         console.error('加载用户信息失败', err);
+      });
+    http
+      .get<Notice[]>('/siteNotice/latest')
+      .then((notices) => {
+        const now = new Date();
+        const validNotices = notices.filter(
+          (notice) =>
+            notice.isActive &&
+            new Date(notice.startTime) <= now &&
+            (!notice.endTime || new Date(notice.endTime) >= now)
+        );
+        setNotices(validNotices);
+      })
+      .catch((err) => {
+        console.error('加载最新通知失败', err);
       });
   }, []);
 
@@ -137,12 +138,7 @@ const HomePage: React.FC = () => {
         )}
 
         <main className="flex-grow">
-          <NoticeBar
-            notices={[
-              '新功能：暗黑模式已上线，可在底部切换',
-              '博客评论系统升级，支持Markdown语法',
-            ]}
-          />
+          <NoticeBar notices={notices} />
 
           <section className="space-y-12">
             {[
