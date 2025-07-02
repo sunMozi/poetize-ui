@@ -17,24 +17,24 @@ const typeStyles: Record<
   { bg: string; border: string; icon: React.ReactNode }
 > = {
   info: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-300',
-    icon: <Info className="w-5 h-5 text-blue-500" />,
+    bg: 'bg-info/10',
+    border: 'border-info',
+    icon: <Info className="w-5 h-5 text-info" />,
   },
   warning: {
-    bg: 'bg-yellow-50',
-    border: 'border-yellow-300',
-    icon: <AlertTriangle className="w-5 h-5 text-yellow-500" />,
+    bg: 'bg-warning/10',
+    border: 'border-warning',
+    icon: <AlertTriangle className="w-5 h-5 text-warning" />,
   },
   error: {
-    bg: 'bg-red-50',
-    border: 'border-red-300',
-    icon: <AlertCircle className="w-5 h-5 text-red-500" />,
+    bg: 'bg-error/10',
+    border: 'border-error',
+    icon: <AlertCircle className="w-5 h-5 text-error" />,
   },
   success: {
-    bg: 'bg-green-50',
-    border: 'border-green-300',
-    icon: <CheckCircle2 className="w-5 h-5 text-green-500" />,
+    bg: 'bg-success/10',
+    border: 'border-success',
+    icon: <CheckCircle2 className="w-5 h-5 text-success" />,
   },
 };
 
