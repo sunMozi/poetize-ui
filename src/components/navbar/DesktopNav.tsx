@@ -2,23 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ThemeSwitcher from '../common/ThemeSwitcher';
 import CategoryMenu from './CategoryMenu';
-import {
-  FiHome,
-  FiHeart,
-  FiTool,
-  FiMail,
-  FiMessageCircle,
-  FiCpu,
-} from 'react-icons/fi';
-
-const navItems = [
-  { label: '首页', path: '/', icon: <FiHome size={20} /> },
-  { label: '家', path: '/love', icon: <FiHeart size={20} /> },
-  { label: '百宝箱', path: '/favorite', icon: <FiTool size={20} /> },
-  { label: '留言', path: '/message', icon: <FiMail size={20} /> },
-  { label: '联系我', path: '/contact', icon: <FiMessageCircle size={20} /> },
-  { label: '后台', path: '/admin', icon: <FiCpu size={20} /> },
-];
+import { navItems } from './navItems';
 
 const DesktopNav: React.FC<{ onDrawerToggle: () => void }> = ({
   onDrawerToggle,

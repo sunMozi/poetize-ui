@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 import http from '../../utils/http';
 import { FaBook } from 'react-icons/fa';
 
+interface Category {
+  label: string;
+  path: string;
+  icon: string;
+}
+
 const CategoryMenu: React.FC = () => {
-  const [categories, setCategories] = useState<
-    { label: string; path: string }[]
-  >([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     http
@@ -16,6 +20,7 @@ const CategoryMenu: React.FC = () => {
           data.map((item: any) => ({
             label: item.sortName,
             path: `/sort?sortId=${item.id}`,
+            icon: item.icon,
           }))
         );
       })
@@ -25,9 +30,7 @@ const CategoryMenu: React.FC = () => {
   return (
     <div className="dropdown dropdown-hover">
       <label tabIndex={0} className="gap-1 normal-case btn btn-ghost">
-        <span>
-          <FaBook />
-        </span>{' '}
+        <FaBook />
         分类
         <svg
           className="w-4 h-4 ml-1"
@@ -50,7 +53,21 @@ const CategoryMenu: React.FC = () => {
       >
         {categories.map((cat) => (
           <li key={cat.label}>
-            <Link to={cat.path}>{cat.label}</Link>
+            <Link to={cat.path} className="flex items-center gap-2">
+              {cat.icon ? (
+                cat.icon.startsWith('http') ? (
+                  <img
+                    src={cat.icon}
+                    alt={cat.label}
+                    className="w-4 h-4"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span className="text-lg leading-none">{cat.icon}</span>
+                )
+              ) : null}
+              {cat.label}
+            </Link>
           </li>
         ))}
       </ul>

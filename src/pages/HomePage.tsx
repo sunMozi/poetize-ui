@@ -7,27 +7,40 @@ import TypingText from '../components/common/TypingText';
 import http from '../utils/http';
 import type { UserProfile } from '../types/user';
 import type { Notice } from '../types/notice';
+import type { Article } from '../types/article';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+
+interface Category {
+  id: number;
+  sortName: string;
+  icon: string; // 字符串，可能是emoji或者URL
+}
 
 const HomePage: React.FC = () => {
   const webTitle = "Zyan's  Space".split('');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [articlesMap, setArticlesMap] = useState<Record<number, Article[]>>({});
   const showAside = true;
 
+  // 加载用户信息
   useEffect(() => {
     http
       .get<UserProfile>('/webInfo/profile')
       .then((data) =>
         setProfile({
           ...data,
-          articlesCount: data.articlesCount || 0,
-          categoriesCount: data.categoriesCount || 0,
-          views: data.views || 0,
+          articlesCount: data.articlesCount ?? 0,
+          categoriesCount: data.categoriesCount ?? 0,
+          views: data.views ?? 0,
         })
       )
-      .catch((err) => {
-        console.error('加载用户信息失败', err);
-      });
+      .catch((err) => console.error('加载用户信息失败', err));
+  }, []);
+
+  // 加载站点通知，自动过滤生效时间内的通知
+  useEffect(() => {
     http
       .get<Notice[]>('/siteNotice/latest')
       .then((notices) => {
@@ -40,26 +53,47 @@ const HomePage: React.FC = () => {
         );
         setNotices(validNotices);
       })
-      .catch((err) => {
-        console.error('加载最新通知失败', err);
-      });
+      .catch((err) => console.error('加载最新通知失败', err));
   }, []);
 
-  const generateArticles = (categoryId: number) => {
-    return Array.from({ length: 3 }).map((_, idx) => ({
-      id: categoryId * 100 + idx + 1,
-      title: `文章标题 ${categoryId}-${idx + 1}`,
-      description:
-        '这是一篇关于前沿技术的深度解析文章，探讨了最新框架的应用场景和性能优化技巧...',
-      date: '2023-06-15',
-      views: 256 + idx * 10,
-      coverGradient:
-        idx % 2 === 0
-          ? 'from-blue-400 to-purple-500'
-          : 'from-green-400 to-yellow-500',
-    }));
+  // 加载热门分类
+  useEffect(() => {
+    http
+      .get<Category[]>('/category/popular')
+      .then(setCategories)
+      .catch((err) => console.error('加载热门分类失败', err));
+  }, []);
+
+  const fetchArticlesByCategory = async (categoryId: number) => {
+    try {
+      const res = await http.get<{
+        rows: Article[];
+      }>('/article/list', {
+        params: {
+          categoryId,
+          pageNum: 1,
+          pageSize: 3,
+        },
+      });
+
+      console.log(`获取分类 ${categoryId} 文章成功`, res);
+      setArticlesMap((prev) => ({
+        ...prev,
+        [categoryId]: res.rows ?? [],
+      }));
+    } catch (error) {
+      console.error('请求文章列表失败', error);
+    }
   };
 
+  // 分类变更后触发文章加载
+  useEffect(() => {
+    if (categories.length > 0) {
+      categories.forEach((cat) => fetchArticlesByCategory(cat.id));
+    }
+  }, [categories]);
+
+  // 平滑滚动到内容区
   const scrollToContent = () => {
     document.querySelector('.page-container-wrap')?.scrollIntoView({
       behavior: 'smooth',
@@ -118,7 +152,7 @@ const HomePage: React.FC = () => {
 
       <div className="flex gap-6 px-4 mx-auto mt-10 page-container-wrap max-w-7xl">
         {showAside && (
-          <aside className="hidden lg:block w-200 sticky top-24 h-[calc(100vh-6rem)] overflow-auto">
+          <aside className="hidden lg:block w-80 sticky top-24 h-[calc(100vh-6rem)] overflow-auto">
             <div className="p-6 border shadow-lg text-base-content bg-gradient-to-b from-base-100 to-base-200 rounded-2xl border-base-300">
               {profile ? (
                 <ProfileCard
@@ -131,7 +165,7 @@ const HomePage: React.FC = () => {
                   views={profile.views}
                 />
               ) : (
-                <div className="text-center text-gray-400">加载中...</div>
+                <LoadingSpinner message="加载用户信息中..." />
               )}
             </div>
           </aside>
@@ -141,18 +175,24 @@ const HomePage: React.FC = () => {
           <NoticeBar notices={notices} />
 
           <section className="space-y-12">
-            {[
-              { id: 1, sortName: '技术文章', icon: '💻' },
-              { id: 2, sortName: '设计思考', icon: '🎨' },
-              { id: 3, sortName: '生活随笔', icon: '📝' },
-            ].map((sort) => (
-              <div key={sort.id} className="mb-10">
+            {categories.map((cat) => (
+              <div key={cat.id} className="mb-10">
                 <SectionHeader
-                  icon={sort.icon}
-                  title={sort.sortName}
-                  onMoreClick={() => console.log(`查看更多: ${sort.sortName}`)}
+                  icon={
+                    cat.icon?.startsWith('http') ? (
+                      <img
+                        src={cat.icon}
+                        alt={cat.sortName}
+                        className="inline-block w-4 h-4 mr-1"
+                      />
+                    ) : (
+                      <span className="text-lg">{cat.icon}</span>
+                    )
+                  }
+                  title={cat.sortName}
+                  onMoreClick={() => console.log(`查看更多: ${cat.sortName}`)}
                 />
-                <ArticleGrid articles={generateArticles(sort.id)} />
+                <ArticleGrid articles={articlesMap[cat.id] ?? []} />
               </div>
             ))}
           </section>
