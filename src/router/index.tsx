@@ -12,7 +12,7 @@ const AppRouter: React.FC = () => (
     <Routes>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="post/:id" element={<PostDetailPage />} />
+        <Route path="post/:slug" element={<PostDetailPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="test" element={<ThemeTest />} />
         <Route path="*" element={<NotFoundPage />} />

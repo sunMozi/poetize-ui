@@ -13,7 +13,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 interface Category {
   id: number;
   sortName: string;
-  icon: string; // 字符串，可能是emoji或者URL
+  icon: string;
 }
 
 const HomePage: React.FC = () => {
@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
       .catch((err) => console.error('加载用户信息失败', err));
   }, []);
 
-  // 加载站点通知，自动过滤生效时间内的通知
+  // 加载站点通知
   useEffect(() => {
     http
       .get<Notice[]>('/siteNotice/latest')
@@ -64,19 +64,14 @@ const HomePage: React.FC = () => {
       .catch((err) => console.error('加载热门分类失败', err));
   }, []);
 
+  // 加载分类文章
   const fetchArticlesByCategory = async (categoryId: number) => {
     try {
       const res = await http.get<{
         rows: Article[];
       }>('/article/list', {
-        params: {
-          categoryId,
-          pageNum: 1,
-          pageSize: 3,
-        },
+        params: { categoryId, pageNum: 1, pageSize: 3 },
       });
-
-      console.log(`获取分类 ${categoryId} 文章成功`, res);
       setArticlesMap((prev) => ({
         ...prev,
         [categoryId]: res.rows ?? [],
@@ -86,7 +81,6 @@ const HomePage: React.FC = () => {
     }
   };
 
-  // 分类变更后触发文章加载
   useEffect(() => {
     if (categories.length > 0) {
       categories.forEach((cat) => fetchArticlesByCategory(cat.id));
@@ -95,43 +89,41 @@ const HomePage: React.FC = () => {
 
   // 平滑滚动到内容区
   const scrollToContent = () => {
-    document.querySelector('.page-container-wrap')?.scrollIntoView({
-      behavior: 'smooth',
-    });
+    document
+      .querySelector('.page-container-wrap')
+      ?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-base-100">
-      {/* 首页背景图 */}
-      <div className="relative w-full overflow-hidden h-[50vh] bg-base-200">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70 z-[1]" />
+      {/* 顶部背景区 */}
+      <div className="relative w-full h-[55vh] md:h-[60vh] bg-base-200 overflow-hidden">
         <img
           src="https://images.pexels.com/photos/1435075/pexels-photo-1435075.jpeg"
           alt="背景图"
-          className="absolute inset-0 object-cover w-full h-full animate-fadeIn"
+          className="absolute inset-0 object-cover w-full h-full brightness-75 saturate-90"
           loading="lazy"
           onError={(e) => {
             (e.target as HTMLImageElement).src =
               'https://images.pexels.com/photos/1485894/pexels-photo-1485894.jpeg';
           }}
         />
-
-        <section className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center myCenter">
-          <h1 className="flex justify-center mb-8 space-x-1 text-4xl font-bold md:text-6xl playful">
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/50 via-black/30 to-transparent" />
+        <section className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
+          <h1 className="flex flex-wrap justify-center mb-8 text-5xl font-extrabold text-white select-none md:text-7xl playful">
             {webTitle.map((char, idx) => (
               <span
                 key={idx}
-                className="inline-block font-mono text-white animate-float"
+                className="inline-block font-mono animate-float"
                 style={{
                   animationDelay: `${idx * 0.1}s`,
-                  textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                  textShadow: '0 2px 10px rgba(0,0,0,0.4)',
                 }}
               >
                 {char}
               </span>
             ))}
           </h1>
-
           <TypingText
             phrases={[
               '欢迎来到我的个人空间',
@@ -139,54 +131,55 @@ const HomePage: React.FC = () => {
               '记录思考与成长的历程',
             ]}
           />
-
           <button
             aria-label="向下导航"
             onClick={scrollToContent}
-            className="mt-12 text-4xl text-white transition-all animate-bounce hover:scale-110"
+            className="text-5xl text-white transition-transform mt-14 animate-bounce hover:scale-110 focus:outline-none"
           >
             ↓
           </button>
         </section>
       </div>
 
-      <div className="flex gap-6 px-4 mx-auto mt-10 page-container-wrap max-w-7xl">
+      {/* 主体内容区域 */}
+      <div className="flex flex-col gap-10 px-4 mx-auto mt-12 lg:flex-row max-w-7xl page-container-wrap">
+        {/* 侧边栏 */}
         {showAside && (
-          <aside className="hidden lg:block w-80 sticky top-24 h-[calc(100vh-6rem)] overflow-auto">
-            <div className="p-6 border shadow-lg text-base-content bg-gradient-to-b from-base-100 to-base-200 rounded-2xl border-base-300">
-              {profile ? (
-                <ProfileCard
-                  avatarUrl={profile.avatarUrl}
-                  name={profile.name}
-                  bio={profile.bio}
-                  socialLinks={profile.socialLinks}
-                  articlesCount={profile.articlesCount}
-                  categoriesCount={profile.categoriesCount}
-                  views={profile.views}
-                />
-              ) : (
-                <LoadingSpinner message="加载用户信息中..." />
-              )}
-            </div>
+          <aside
+            className="
+  hidden lg:block w-80 sticky top-24 max-h-[calc(100vh-6rem)] overflow-auto
+  rounded-3xl bg-gradient-to-b from-base-100 to-base-200 border border-base-300
+  shadow-xl p-6
+  scrollbar-thin scrollbar-thumb-base-400 scrollbar-track-base-200
+"
+          >
+            {profile ? (
+              <ProfileCard {...profileProps} />
+            ) : (
+              <LoadingSpinner message="加载用户信息中..." />
+            )}
           </aside>
         )}
 
-        <main className="flex-grow">
+        {/* 主要文章区 */}
+        <main className="flex-grow min-w-0">
+          {/* 站点通知 */}
           <NoticeBar notices={notices} />
 
-          <section className="space-y-12">
+          {/* 分类与文章 */}
+          <section className="space-y-16">
             {categories.map((cat) => (
-              <div key={cat.id} className="mb-10">
+              <div key={cat.id}>
                 <SectionHeader
                   icon={
                     cat.icon?.startsWith('http') ? (
                       <img
                         src={cat.icon}
                         alt={cat.sortName}
-                        className="inline-block w-4 h-4 mr-1"
+                        className="inline-block w-5 h-5 mr-2 rounded-sm"
                       />
                     ) : (
-                      <span className="text-lg">{cat.icon}</span>
+                      <span className="mr-2 text-lg">{cat.icon}</span>
                     )
                   }
                   title={cat.sortName}

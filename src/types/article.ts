@@ -13,3 +13,32 @@ export interface Article {
   authorAvatar?: string | null;
   authorSourceType: number;
 }
+export interface ArticleDetail {
+  // 文章字段
+  id: number;
+  categoryId: number;
+  authorId: number;
+  title: string;
+  slug?: string;
+  summary?: string;
+  coverImage?: string;
+  content: string;
+  views: number;
+  likes: number;
+  commentsCount: number;
+  status: number;
+  sortOrder: number;
+  createTime: string; // ISO日期字符串
+  updateTime: string;
+
+  // 作者字段
+  authorNickname: string;
+  authorRealName?: string;
+  authorAvatar?: string;
+  authorBio?: string;
+  authorEmail?: string;
+  authorWebsite?: string;
+  authorStatus: number;
+  authorCreateTime: string;
+  authorUpdateTime: string;
+}
