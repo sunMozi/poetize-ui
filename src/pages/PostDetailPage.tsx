@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import http from '../utils/http';
 import type { ArticleDetail } from '../types/article';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import 'highlight.js/styles/github.css';
 import MarkdownRenderer from '../components/common/MarkdownRenderer';
 
 const PostDetailPage: React.FC = () => {
