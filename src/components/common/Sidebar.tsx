@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 interface SidebarProps {
@@ -16,14 +16,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
   position = 'left',
   children,
 }) => {
+  const sidebarRef = useRef<HTMLDivElement>(null);
   const translateX = position === 'left' ? '-100%' : '100%';
   const motionStyle =
     position === 'left'
       ? { x: isOpen ? 0 : translateX }
       : { x: isOpen ? 0 : translateX };
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        onClose?.();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   return (
     <motion.aside
+      ref={sidebarRef}
       initial={{ x: translateX }}
       animate={motionStyle}
       transition={{ type: 'tween', duration: 0.3 }}

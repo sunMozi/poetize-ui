@@ -2,25 +2,23 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import remarkToc from 'remark-toc';
 
 // PrismJS 核心和语言包
 import Prism from 'prismjs';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-jsx';
 import 'prismjs/components/prism-typescript';
-// 其他语言可按需引入
-
-// PrismJS 主题样式（选择低对比度、暗亮皆宜的主题，可替换）
 import 'prismjs/themes/prism-tomorrow.css';
 
 interface MarkdownRendererProps {
   content: string;
-  fontFamily?: string; // 新增 fontFamily 属性
+  fontFamily?: string;
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
-  fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", // 设置默认字体
+  fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
 }) => {
   return (
     <section
@@ -28,15 +26,15 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       style={{ fontFamily }}
     >
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkToc]}
         rehypePlugins={[rehypeRaw]}
         components={{
-          code: (props: {
-            inline?: boolean;
-            className?: string;
-            children?: React.ReactNode;
-          }) => {
-            const { inline, className, children, ...rest } = props;
+          code: (props) => {
+            const { inline, className, children, ...rest } = props as {
+              inline?: boolean;
+              className?: string;
+              children?: React.ReactNode;
+            };
             const codeString = String(children).replace(/\n$/, '');
             const match = /language-(\w+)/.exec(className || '');
 
@@ -95,12 +93,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               className="p-4 my-6 text-lg italic border-l-4 rounded-lg border-primary bg-base-200 theme-blockquote"
             />
           ),
-          pre: (props) => (
-            <pre
-              {...props}
-              className="w-full p-4 my-6 overflow-auto text-left rounded-lg shadow bg-base-300 text-base-content theme-pre"
-            />
-          ),
           table: (props) => (
             <table
               {...props}
@@ -110,7 +102,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
           thead: (props) => (
             <thead
               {...props}
-              className="font-bold bg-base-300 text-base-content theme-thead" // 调整表头样式
+              className="font-bold bg-base-300 text-base-content theme-thead"
             />
           ),
           th: (props) => (

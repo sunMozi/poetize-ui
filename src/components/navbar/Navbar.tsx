@@ -13,7 +13,7 @@ const Navbar: React.FC<NavbarProps> = ({ show, className = '' }) => {
   return (
     <>
       <div
-        className={`z-50 shadow-md navbar bg-base-200 transform transition-transform duration-300 ${className} ${
+        className={`z-50 shadow-md navbar bg-base-200  transform transition-transform duration-300 ${className} ${
           show ? 'translate-y-0' : '-translate-y-full'
         }`}
       >

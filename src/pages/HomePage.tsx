@@ -97,7 +97,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-base-100">
       {/* 顶部背景区 */}
-      <div className="relative w-full h-[55vh] md:h-[60vh] bg-base-200 overflow-hidden">
+      <div className="relative w-full h-[45vh] md:h-[45vh] bg-base-200 overflow-hidden">
         <img
           src="https://images.pexels.com/photos/1435075/pexels-photo-1435075.jpeg"
           alt="背景图"
@@ -142,10 +142,10 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* 主体内容区域 */}
-      <div className="flex flex-col gap-10 px-4 mx-auto mt-12 lg:flex-row max-w-[80%] page-container-wrap">
+      <div className="flex flex-col gap-10 px-4 mx-auto mt-12 lg:flex-row max-w-[88%] page-container-wrap">
         {/* 侧边栏 */}
         {showAside && (
-          <aside className="hidden lg:block w-120 sticky top-24 max-h-[calc(100vh-6rem)] overflow-auto rounded-2xl bg-gradient-to-b from-base-100 to-base-200 border border-base-300 shadow-lg p-6">
+          <aside className="hidden lg:block w-120 sticky  max-h-[calc(100vh-6rem)] overflow-auto rounded-2xl p-6">
             {profile ? (
               <ProfileCard
                 avatarUrl={profile.avatarUrl}

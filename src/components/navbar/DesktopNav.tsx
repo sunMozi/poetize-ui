@@ -10,7 +10,7 @@ const DesktopNav: React.FC<{ onDrawerToggle: () => void }> = ({
   onDrawerToggle,
 }) => {
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>

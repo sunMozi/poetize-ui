@@ -20,6 +20,7 @@ const themes = [
   'night',
   'coffee',
   'winter',
+  'test',
 ] as const;
 
 type Theme = (typeof themes)[number];
@@ -82,6 +83,9 @@ const ThemeSwitcher: React.FC = () => {
         return 'bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950';
       case 'winter':
         return 'bg-gradient-to-br from-blue-100 via-blue-50 to-blue-200';
+      case 'test':
+        return 'bg-gradient-to-br from-purple-200 via-purple-100 to-purple-300';
+
       default:
         return 'bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200';
     }

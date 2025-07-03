@@ -45,7 +45,7 @@ const MainLayout: React.FC = () => {
     <div className="relative flex flex-col min-h-screen">
       <Navbar
         show={showNavbar}
-        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0  right-0 z-50 transition-transform duration-300 ease-in-out ${
           showNavbar ? 'translate-y-0' : '-translate-y-full'
         }`}
       />
