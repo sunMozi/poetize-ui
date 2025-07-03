@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import ThemeSwitcher from '../common/ThemeSwitcher';
 import CategoryMenu from './CategoryMenu';
 import { navItems } from './navItems';
+import { Sidebar } from '../common/Sidebar';
+import { GiBookshelf } from 'react-icons/gi';
+import ThemeSwitcher from '../common/ThemeSwitcher';
 
 const DesktopNav: React.FC<{ onDrawerToggle: () => void }> = ({
   onDrawerToggle,
 }) => {
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <>
@@ -53,7 +56,23 @@ const DesktopNav: React.FC<{ onDrawerToggle: () => void }> = ({
             <span className="mr-1">{item.icon}</span> {item.label}
           </Link>
         ))}
-        <ThemeSwitcher />
+        <div>
+          <button
+            className="btn btn-square btn-ghost"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="切换主题"
+          >
+            <GiBookshelf />
+          </button>
+          <Sidebar
+            position="right"
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            width={340}
+          >
+            <ThemeSwitcher />
+          </Sidebar>
+        </div>
       </div>
     </>
   );
