@@ -142,19 +142,20 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* 主体内容区域 */}
-      <div className="flex flex-col gap-10 px-4 mx-auto mt-12 lg:flex-row max-w-7xl page-container-wrap">
+      <div className="flex flex-col gap-10 px-4 mx-auto mt-12 lg:flex-row max-w-[80%] page-container-wrap">
         {/* 侧边栏 */}
         {showAside && (
-          <aside
-            className="
-  hidden lg:block w-80 sticky top-24 max-h-[calc(100vh-6rem)] overflow-auto
-  rounded-3xl bg-gradient-to-b from-base-100 to-base-200 border border-base-300
-  shadow-xl p-6
-  scrollbar-thin scrollbar-thumb-base-400 scrollbar-track-base-200
-"
-          >
+          <aside className="hidden lg:block w-120 sticky top-24 max-h-[calc(100vh-6rem)] overflow-auto rounded-2xl bg-gradient-to-b from-base-100 to-base-200 border border-base-300 shadow-lg p-6">
             {profile ? (
-              <ProfileCard {...profileProps} />
+              <ProfileCard
+                avatarUrl={profile.avatarUrl}
+                name={profile.name}
+                bio={profile.bio}
+                socialLinks={profile.socialLinks}
+                articlesCount={profile.articlesCount}
+                categoriesCount={profile.categoriesCount}
+                views={profile.views}
+              />
             ) : (
               <LoadingSpinner message="加载用户信息中..." />
             )}
