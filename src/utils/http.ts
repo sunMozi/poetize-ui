@@ -3,21 +3,56 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from 'axios';
+import toast from 'react-hot-toast';
 
-// 创建实例
+interface FailedRequest {
+  config: AxiosRequestConfig;
+  resolver: (value: any) => void;
+  rejecter: (reason?: any) => void;
+}
+
+class RequestPool {
+  private failedQueue: FailedRequest[] = [];
+
+  add(config: AxiosRequestConfig): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.failedQueue.push({ config, resolver: resolve, rejecter: reject });
+    });
+  }
+
+  async retryAll(instance: AxiosInstance) {
+    if (this.failedQueue.length === 0) return;
+    const queue = [...this.failedQueue];
+    this.failedQueue = [];
+
+    for (const { config, resolver, rejecter } of queue) {
+      try {
+        const res = await instance(config);
+        resolver(res);
+      } catch (err) {
+        rejecter(err);
+      }
+    }
+  }
+}
+
+const requestPool = new RequestPool();
+
 const instance: AxiosInstance = axios.create({
-  baseURL: '/api', // 可按需修改
-  timeout: 10000, // 10秒超时
+  baseURL: '/api',
+  timeout: 10_000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 function notifyError(message: string) {
-  alert(message);
+  toast.error(message, {
+    position: 'top-right',
+    duration: 4000,
+  });
 }
 
-// 请求拦截器
 instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -29,17 +64,16 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 响应拦截器，提取 data.data 并统一错误处理
 instance.interceptors.response.use(
-  (response: AxiosResponse) => {
+  async (response: AxiosResponse) => {
     const res = response.data;
-    // 统一判断业务 code
     if (res.code !== 200) {
-      // 业务错误，提示并拒绝 Promise
       notifyError(res.message || '请求失败');
       return Promise.reject(new Error(res.message || 'Error'));
     }
-    // 返回真正业务数据
+
+    // 请求成功，尝试重试池内失败请求
+    await requestPool.retryAll(instance);
     return res.data;
   },
   (error) => {
@@ -62,12 +96,14 @@ instance.interceptors.response.use(
       notifyError('网络连接失败');
     } else {
       console.error(`请求异常: ${error.message}`);
+      notifyError('请求异常');
     }
-    return Promise.reject(error);
+
+    // 将失败请求放入池中，等待后续成功请求触发重试
+    return requestPool.add(error.config);
   }
 );
 
-// 导出通用方法
 const http = {
   get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
     return instance.get(url, config);

@@ -1,10 +1,9 @@
+// MarkdownRenderer.tsx
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import remarkToc from 'remark-toc';
 
-// PrismJS 核心和语言包
 import Prism from 'prismjs';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-jsx';
@@ -26,22 +25,26 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       style={{ fontFamily }}
     >
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkToc]}
+        remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
-          code: (props) => {
-            const { inline, className, children, ...rest } = props as {
-              inline?: boolean;
-              className?: string;
-              children?: React.ReactNode;
-            };
+          code: ({
+            inline,
+            className,
+            children,
+            ...props
+          }: {
+            inline?: boolean;
+            className?: string;
+            children?: React.ReactNode;
+          }) => {
             const codeString = String(children).replace(/\n$/, '');
             const match = /language-(\w+)/.exec(className || '');
 
             if (inline) {
               return (
                 <code
-                  {...rest}
+                  {...props}
                   className="px-1 py-[0.15rem] rounded bg-base-200 text-base-content font-mono text-sm shadow-sm"
                 >
                   {children}
@@ -66,7 +69,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             } else {
               return (
                 <pre className="w-full p-4 my-6 overflow-auto font-mono text-sm text-left rounded-lg shadow bg-base-300 text-base-content">
-                  <code {...rest}>{children}</code>
+                  <code {...props}>{children}</code>
                 </pre>
               );
             }
@@ -136,18 +139,30 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             <h1
               {...props}
               className="my-6 text-4xl font-bold text-primary theme-h1"
+              id={String(props.children)
+                .toLowerCase()
+                .replace(/[^\w]+/g, '-')
+                .replace(/(^-|-$)/g, '')}
             />
           ),
           h2: (props) => (
             <h2
               {...props}
               className="my-5 text-3xl font-semibold text-secondary theme-h2"
+              id={String(props.children)
+                .toLowerCase()
+                .replace(/[^\w]+/g, '-')
+                .replace(/(^-|-$)/g, '')}
             />
           ),
           h3: (props) => (
             <h3
               {...props}
               className="my-4 text-2xl font-medium text-accent theme-h3"
+              id={String(props.children)
+                .toLowerCase()
+                .replace(/[^\w]+/g, '-')
+                .replace(/(^-|-$)/g, '')}
             />
           ),
         }}

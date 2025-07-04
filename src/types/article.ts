@@ -14,6 +14,7 @@ export interface Article {
   authorSourceType: number;
 }
 export interface ArticleDetail {
+  [x: string]: boolean;
   // 文章字段
   id: number;
   categoryId: number;
