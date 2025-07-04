@@ -9,6 +9,7 @@ import type { UserProfile } from '../types/user';
 import type { Notice } from '../types/notice';
 import type { Article } from '../types/article';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import WaveDivider from '../components/common/WaveDivider';
 
 interface Category {
   id: number;
@@ -141,6 +142,8 @@ const HomePage: React.FC = () => {
         </section>
       </div>
 
+      {/* 波浪动画分隔线 */}
+      <WaveDivider />
       {/* 主体内容区域 */}
       <div className="flex flex-col gap-10 px-4 mx-auto mt-12 lg:flex-row max-w-[88%] page-container-wrap">
         {/* 侧边栏 */}

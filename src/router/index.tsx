@@ -1,21 +1,34 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
-import PostDetailPage from '../pages/PostDetailPage';
-import AboutPage from '../pages/AboutPage';
 import NotFoundPage from '../pages/NotFoundPage';
-import HomePage from '../pages/HomePage';
+import GlobalLoader from '../components/common/GlobalLoader';
+
+// 懒加载页面组件
+const HomePage = lazy(() => import('../pages/HomePage'));
+const PostDetailPage = lazy(() => import('../pages/PostDetailPage'));
+const AboutPage = lazy(() => import('../pages/AboutPage'));
 
 const AppRouter: React.FC = () => (
   <Router>
-    <Routes>
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="post/:slug" element={<PostDetailPage />} />
-        <Route path="about" element={<AboutPage />} />
+    <Suspense
+      fallback={
+        <div className="p-4 text-center">
+          <GlobalLoader />
+        </div>
+      }
+    >
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="post/:slug" element={<PostDetailPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+        {/* 捕获顶层非法路径，例如 /abcde */}
         <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </Suspense>
   </Router>
 );
 
