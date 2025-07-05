@@ -10,15 +10,13 @@ import type { Notice } from '../types/notice';
 import type { Article } from '../types/article';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import WaveDivider from '../components/common/WaveDivider';
-
-interface Category {
-  id: number;
-  sortName: string;
-  icon: string;
-}
+import type { Category } from '../types/category';
+import { fetchUserProfile } from '../api/profileApi';
+import { fetchValidNotices } from '../api/noticeApi';
+import { fetchPopularCategories } from '../api/categoryApi';
 
 const HomePage: React.FC = () => {
-  const webTitle = "Zyan's  Space".split('');
+  const webTitle = "Zyan' s  Space".split('');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,40 +25,21 @@ const HomePage: React.FC = () => {
 
   // 加载用户信息
   useEffect(() => {
-    http
-      .get<UserProfile>('/webInfo/profile')
-      .then((data) =>
-        setProfile({
-          ...data,
-          articlesCount: data.articlesCount ?? 0,
-          categoriesCount: data.categoriesCount ?? 0,
-          views: data.views ?? 0,
-        })
-      )
+    fetchUserProfile()
+      .then(setProfile)
       .catch((err) => console.error('加载用户信息失败', err));
   }, []);
 
   // 加载站点通知
   useEffect(() => {
-    http
-      .get<Notice[]>('/siteNotice/latest')
-      .then((notices) => {
-        const now = new Date();
-        const validNotices = notices.filter(
-          (notice) =>
-            notice.isActive &&
-            new Date(notice.startTime) <= now &&
-            (!notice.endTime || new Date(notice.endTime) >= now)
-        );
-        setNotices(validNotices);
-      })
+    fetchValidNotices()
+      .then(setNotices)
       .catch((err) => console.error('加载最新通知失败', err));
   }, []);
 
   // 加载热门分类
   useEffect(() => {
-    http
-      .get<Category[]>('/category/popular')
+    fetchPopularCategories()
       .then(setCategories)
       .catch((err) => console.error('加载热门分类失败', err));
   }, []);

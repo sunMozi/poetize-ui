@@ -8,6 +8,7 @@ import DashboardPage from '../pages/admin/DashboardPage';
 import SettingsPage from '../pages/admin/SettingsPage';
 import UserListPage from '../pages/admin/UserListPage';
 import RequireAuth from '../components/admin/RequireAuth';
+import { LoginPage } from '../pages/LoginPage';
 
 // 懒加载页面组件
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -46,7 +47,8 @@ const AppRouter: React.FC = () => (
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
-
+        {/* 登录页面 */}
+        <Route path="/login" element={<LoginPage />} />
         {/* 捕获顶层非法路径，例如 /abcde */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

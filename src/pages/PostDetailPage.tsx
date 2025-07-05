@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import http from '../utils/http';
 import type { ArticleDetail } from '../types/article';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import MarkdownRenderer from '../components/common/article/MarkdownRenderer';
@@ -13,7 +12,8 @@ import {
   FiShare2,
 } from 'react-icons/fi';
 import TocMenu from '../components/common/article/TocMenu';
-import { extractToc, type TocItem } from '../utils/extractToc';
+import { fetchArticleDetailWithToc } from '../api/articleApi';
+import type { TocItem } from '../utils/extractToc';
 
 const PostDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -30,13 +30,15 @@ const PostDetailPage: React.FC = () => {
   useEffect(() => {
     if (slug) {
       setLoading(true);
-      http
-        .get<ArticleDetail>(`/article/detail/${slug}`)
-        .then((data) => {
-          setArticle(data);
-          setToc(extractToc(data.content));
+      fetchArticleDetailWithToc(slug)
+        .then(({ article, toc }) => {
+          setArticle(article);
+          setToc(toc);
         })
-        .catch((err) => console.error('加载文章失败', err))
+        .catch((err) => {
+          // 这里可以加弹窗或错误 UI
+          console.error('加载文章失败', err);
+        })
         .finally(() => setLoading(false));
     }
   }, [slug]);
