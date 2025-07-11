@@ -59,11 +59,9 @@ export interface User {
 }
 
 export interface UserLoginRequest {
-  account: string;
+  account: string; // 邮箱
   password: string;
-  isAdmin?: boolean; // 可选，后端默认 false
 }
-
 export interface RegisterRequest {
   account: string; // 用户账号，必填
   password: string; // 用户密码，必填
