@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import http from '../../utils/http';
 import { FaBook } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { fetchActiveCategories } from '../../api/categoryApi';
 
-interface Category {
+interface CategoryMenuItem {
   label: string;
   path: string;
-  icon: string;
+  icon?: string;
 }
 
 const CategoryMenu: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryMenuItem[]>([]);
 
   useEffect(() => {
-    http
-      .get('/category/active')
-      .then((data) => {
+    fetchActiveCategories()
+      .then((data: any[]) => {
         setCategories(
-          data.map((item: any) => ({
+          data.map((item) => ({
             label: item.sortName,
             path: `/sort?sortId=${item.id}`,
             icon: item.icon,
           }))
         );
       })
-      .catch((err) => console.error('加载分类失败', err));
+      .catch((err: any) => console.error('加载分类失败', err));
   }, []);
 
   return (

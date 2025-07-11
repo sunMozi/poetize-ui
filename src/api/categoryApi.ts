@@ -1,16 +1,31 @@
 import type { Article } from '../types/article';
 import type { Category } from '../types/category';
-import http from '../utils/http';
+import { get } from '../utils/http';
 
 export async function fetchPopularCategories(): Promise<Category[]> {
-  return await http.get<Category[]>('/category/popular');
+  return await get<Category[]>('/category/popular');
 }
 
+interface ArticleListData {
+  rows: Article[];
+  total: number;
+  pageNum: number;
+  pageSize: number;
+}
+
+// 加载分类文章
 export async function fetchArticlesByCategory(
-  categoryId: number
-): Promise<Article[]> {
-  const res = await http.get<{ rows: Article[] }>('/article/list', {
-    params: { categoryId, pageNum: 1, pageSize: 3 },
+  categoryId: number,
+  pageNum = 1,
+  pageSize = 3
+): Promise<ArticleListData> {
+  return get<ArticleListData>('/article/list', {
+    categoryId,
+    pageNum,
+    pageSize,
   });
-  return res.rows ?? [];
+}
+
+export async function fetchActiveCategories(): Promise<Category[]> {
+  return get<Category[]>('/category/active');
 }

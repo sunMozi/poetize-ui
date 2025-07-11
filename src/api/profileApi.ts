@@ -1,6 +1,6 @@
 import type { UserProfile } from '../types/user';
-import http from '../utils/http';
+import { get } from '../utils/http';
 
 export async function fetchUserProfile(): Promise<any> {
-  return await http.get<UserProfile>('/webInfo/profile');
+  return await get<UserProfile>('/webInfo/profile');
 }

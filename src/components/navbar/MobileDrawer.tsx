@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-
 import { FaBook } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import http from '../../utils/http';
+import { fetchActiveCategories } from '../../api/categoryApi';
 import { navItems } from './navItems';
 
 interface MobileDrawerProps {
@@ -10,24 +9,26 @@ interface MobileDrawerProps {
   onClose: () => void;
 }
 
+interface CategoryMenuItem {
+  label: string;
+  path: string;
+}
+
 const MobileDrawer: React.FC<MobileDrawerProps> = ({ open, onClose }) => {
-  const [categories, setCategories] = useState<
-    { label: string; path: string }[]
-  >([]);
+  const [categories, setCategories] = useState<CategoryMenuItem[]>([]);
 
   useEffect(() => {
-    if (open) {
-      http
-        .get('/category/active')
-        .then((data) => {
-          const cats = data.map((item: any) => ({
-            label: item.sortName,
-            path: `/sort?sortId=${item.id}`,
-          }));
-          setCategories(cats);
-        })
-        .catch((err) => console.error('加载分类失败', err));
-    }
+    if (!open) return;
+
+    fetchActiveCategories()
+      .then((data) => {
+        const cats = data.map((item) => ({
+          label: item.sortName,
+          path: `/sort?sortId=${item.id}`,
+        }));
+        setCategories(cats);
+      })
+      .catch((err) => console.error('加载分类失败', err));
   }, [open]);
 
   if (!open) return null;

@@ -4,7 +4,6 @@ import ArticleGrid from '../components/common/article/ArticleGrid';
 import NoticeBar from '../components/common/NoticeBar';
 import SectionHeader from '../components/common/SectionHeader';
 import TypingText from '../components/common/TypingText';
-import http from '../utils/http';
 import type { UserProfile } from '../types/user';
 import type { Notice } from '../types/notice';
 import type { Article } from '../types/article';
@@ -13,7 +12,10 @@ import WaveDivider from '../components/common/WaveDivider';
 import type { Category } from '../types/category';
 import { fetchUserProfile } from '../api/profileApi';
 import { fetchValidNotices } from '../api/noticeApi';
-import { fetchPopularCategories } from '../api/categoryApi';
+import {
+  fetchArticlesByCategory,
+  fetchPopularCategories,
+} from '../api/categoryApi';
 
 const HomePage: React.FC = () => {
   const webTitle = "Zyan' s  Space".split('');
@@ -44,27 +46,34 @@ const HomePage: React.FC = () => {
       .catch((err) => console.error('加载热门分类失败', err));
   }, []);
 
-  // 加载分类文章
-  const fetchArticlesByCategory = async (categoryId: number) => {
-    try {
-      const res = await http.get<{
-        rows: Article[];
-      }>('/article/list', {
-        params: { categoryId, pageNum: 1, pageSize: 3 },
-      });
-      setArticlesMap((prev) => ({
-        ...prev,
-        [categoryId]: res.rows ?? [],
-      }));
-    } catch (error) {
-      console.error('请求文章列表失败', error);
-    }
-  };
-
   useEffect(() => {
-    if (categories.length > 0) {
-      categories.forEach((cat) => fetchArticlesByCategory(cat.id));
+    if (categories.length === 0) return;
+
+    let mounted = true;
+
+    async function fetchAllArticles() {
+      try {
+        await Promise.all(
+          categories.map(async (cat) => {
+            const data = await fetchArticlesByCategory(cat.id, 1, 3);
+            if (mounted) {
+              setArticlesMap((prev) => ({
+                ...prev,
+                [cat.id]: data.rows ?? [],
+              }));
+            }
+          })
+        );
+      } catch (error) {
+        console.error('请求文章列表失败', error);
+      }
     }
+
+    fetchAllArticles();
+
+    return () => {
+      mounted = false;
+    };
   }, [categories]);
 
   // 平滑滚动到内容区
