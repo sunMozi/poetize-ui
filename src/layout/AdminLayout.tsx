@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
-  Menu,
   LayoutDashboard,
-  Users,
   Settings,
-  ChevronLeft,
+  Users,
+  FileText,
+  ShoppingCart,
+  Package,
+  MessageCircle,
+  FolderOpen,
+  Layers,
+  Heart,
+  ClipboardList,
+  Sliders,
+  SlidersHorizontal,
   ChevronRight,
+  ChevronLeft,
+  Menu,
 } from 'lucide-react';
-
 const menuItems = [
   {
     to: '/admin',
@@ -16,24 +25,82 @@ const menuItems = [
     icon: <LayoutDashboard className="w-5 h-5" />,
   },
   {
+    to: '/admin/site',
+    label: '网站设置',
+    icon: <Settings className="w-5 h-5" />,
+  },
+  {
     to: '/admin/users',
     label: '用户管理',
     icon: <Users className="w-5 h-5" />,
   },
   {
-    to: '/admin/settings',
+    to: '/admin/categories',
+    label: '分类管理',
+    icon: <Layers className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/articles',
+    label: '文章管理',
+    icon: <FileText className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/products',
+    label: '商品管理',
+    icon: <Package className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/orders',
+    label: '订单管理',
+    icon: <ShoppingCart className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/comments',
+    label: '评论管理',
+    icon: <MessageCircle className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/treehole',
+    label: '树洞管理',
+    icon: <Heart className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/resources',
+    label: '资源管理',
+    icon: <FolderOpen className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/resource-aggregation',
+    label: '资源聚合',
+    icon: <Layers className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/wall',
+    label: '表白墙',
+    icon: <Heart className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/tickets',
+    label: '工单管理',
+    icon: <ClipboardList className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/configs',
+    label: '配置管理',
+    icon: <Sliders className="w-5 h-5" />,
+  },
+  {
+    to: '/admin/system',
     label: '系统设置',
-    icon: <Settings className="w-5 h-5" />,
+    icon: <SlidersHorizontal className="w-5 h-5" />,
   },
 ];
-
 const AdminLayout: React.FC = () => {
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const isActive = (path: string) =>
-    location.pathname === path || location.pathname.startsWith(path + '/');
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -131,11 +198,6 @@ const AdminLayout: React.FC = () => {
           </h2>
 
           <div className="flex items-center space-x-4">
-            <input
-              type="text"
-              placeholder="搜索..."
-              className="hidden w-48 rounded-md sm:block input input-bordered input-sm"
-            />
             <div className="transition bg-gray-300 rounded-full cursor-pointer w-9 h-9 hover:ring-2 hover:ring-indigo-500" />
           </div>
         </header>

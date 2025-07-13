@@ -9,6 +9,8 @@ import SettingsPage from '../pages/admin/SettingsPage';
 import UserListPage from '../pages/admin/UserListPage';
 import RequireAuth from '../components/admin/RequireAuth';
 import AuthPage from '../pages/AuthPage';
+import ArticleList from '../pages/admin/ArticleList';
+import ArticleCreatePage from '../pages/admin/article/ArticleCreatePage';
 
 // 懒加载页面组件
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -44,6 +46,8 @@ const AppRouter: React.FC = () => (
         >
           <Route index element={<DashboardPage />} />
           <Route path="users" element={<UserListPage />} />
+          <Route path="articles" element={<ArticleList />} />
+          <Route path="articles/create" element={<ArticleCreatePage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
