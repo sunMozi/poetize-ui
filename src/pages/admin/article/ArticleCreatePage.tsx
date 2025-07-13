@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Form,
   Input,
   Button,
   Select,
-  Upload,
   message,
   InputNumber,
   Row,
@@ -17,7 +16,12 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown.css';
-import './ArticleCreatePage.css'; // 新增CSS文件
+import './ArticleCreatePage.css';
+import UploadImage from '../../../components/admin/UploadImage';
+import type { Category } from '../../../types/category';
+import { fetchActiveCategories } from '../../../api/categoryApi';
+import { createArticle } from '../../../api/articleApi';
+import toast from 'react-hot-toast';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -28,21 +32,36 @@ const ArticleCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [markdownContent, setMarkdownContent] = useState('');
-  const [activeTab, setActiveTab] = useState('edit'); // 标签页状态
+  const [activeTab, setActiveTab] = useState('edit');
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const onFinish = async (values: any) => {
     setSubmitting(true);
     try {
-      const payload = { ...values, content: markdownContent };
-      console.log('提交数据:', payload);
-      message.success('文章创建成功');
+      const payload = {
+        ...values,
+        content: markdownContent,
+        authorId: 1, // TODO: 从登录用户中获取
+      };
+      await createArticle(payload);
+      toast.success('文章创建成功');
       navigate('/admin/articles');
-    } catch (error) {
-      message.error('创建失败，请稍后重试' + error);
+    } catch (error: any) {
+      toast.error('创建失败，请稍后重试: ' + (error.message || '未知错误'));
     } finally {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    fetchActiveCategories()
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch((error) => {
+        toast.error('加载分类失败: ' + error.message);
+      });
+  }, []);
 
   return (
     <div className="article-create-container">
@@ -99,17 +118,11 @@ const ArticleCreatePage: React.FC = () => {
             label={<span className="form-label">封面图</span>}
             name="coverImage"
           >
-            <Upload
-              name="file"
-              listType="picture-card"
-              maxCount={1}
-              className="cover-uploader"
-              accept="image/*"
-            >
-              <div className="upload-button">
-                <div style={{ marginTop: 8 }}>上传封面</div>
-              </div>
-            </Upload>
+            <UploadImage
+              uploadUrl="/api/common/upload/image"
+              maxSizeMB={5}
+              accept="image/png,image/jpeg"
+            />
           </Form.Item>
 
           <Row gutter={24}>
@@ -119,27 +132,18 @@ const ArticleCreatePage: React.FC = () => {
                 name="categoryId"
                 rules={[{ required: true, message: '请选择分类' }]}
               >
-                <Select placeholder="请选择分类" allowClear size="large">
-                  <Option value={1}>前端开发</Option>
-                  <Option value={2}>后端开发</Option>
-                  <Option value={3}>系统架构</Option>
-                  <Option value={4}>人工智能</Option>
-                  <Option value={5}>数据分析</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-
-            <Col span={8}>
-              <Form.Item
-                label={<span className="form-label">作者ID</span>}
-                name="authorId"
-                rules={[{ required: true, message: '请输入作者ID' }]}
-              >
-                <InputNumber
-                  placeholder="请输入作者ID"
-                  style={{ width: '100%' }}
+                <Select
+                  placeholder="请选择分类"
+                  allowClear
                   size="large"
-                />
+                  loading={categories.length === 0}
+                >
+                  {categories.map((cat) => (
+                    <Option key={cat.id} value={cat.id}>
+                      {cat.sortName}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
 

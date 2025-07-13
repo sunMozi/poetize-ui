@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import Navbar from '../components/navbar/Navbar';
 
 const MainLayout: React.FC = () => {
@@ -44,17 +43,6 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="relative flex flex-col min-h-screen">
-      {/* 全局 toast 容器 */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            fontSize: '0.9rem',
-          },
-        }}
-      />
-
       <Navbar
         show={showNavbar}
         className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${

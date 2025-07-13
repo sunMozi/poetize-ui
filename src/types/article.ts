@@ -57,3 +57,15 @@ export interface ArticleDetailVO {
   authorCreateTime?: string; // ISO 时间字符串
   authorUpdateTime?: string; // ISO 时间字符串
 }
+
+export interface CreateArticleParams {
+  title: string;
+  slug?: string;
+  summary?: string;
+  coverImage?: string;
+  categoryId: number;
+  content: string;
+  status: number;
+  sortOrder?: number;
+  authorId: number;
+}

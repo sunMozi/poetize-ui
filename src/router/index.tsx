@@ -1,5 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast'; // 引入 Toaster 组件
+
 import MainLayout from '../layout/MainLayout';
 import NotFoundPage from '../pages/NotFoundPage';
 import GlobalLoader from '../components/common/GlobalLoader';
@@ -19,6 +21,27 @@ const AboutPage = lazy(() => import('../pages/AboutPage'));
 
 const AppRouter: React.FC = () => (
   <Router>
+    <Toaster
+      position="top-right"
+      reverseOrder={false}
+      toastOptions={{
+        style: {
+          fontSize: '14px',
+          borderRadius: '8px',
+          background: '#333',
+          color: '#fff',
+        },
+        success: {
+          duration: 3000,
+          icon: '✅',
+        },
+        error: {
+          duration: 5000,
+          icon: '❌',
+        },
+      }}
+    />
+
     <Suspense
       fallback={
         <div className="p-4 text-center">
@@ -51,9 +74,11 @@ const AppRouter: React.FC = () => (
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+
         {/* 登录页面 */}
         <Route path="/login" element={<AuthPage />} />
-        {/* 捕获顶层非法路径，例如 /abcde */}
+
+        {/* 捕获顶层非法路径 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
