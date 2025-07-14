@@ -10,8 +10,7 @@ import {
   Card,
   Tabs,
 } from 'antd';
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown.css';
@@ -19,63 +18,57 @@ import './ArticleCreatePage.css';
 import UploadImage from '../../../components/admin/UploadImage';
 import type { Category } from '../../../types/category';
 import { fetchActiveCategories } from '../../../api/categoryApi';
-import { createArticle } from '../../../api/articleApi';
 import toast from 'react-hot-toast';
 
 const { Option } = Select;
 const { TextArea } = Input;
 const { TabPane } = Tabs;
 
-const ArticleCreatePage: React.FC = () => {
+const ArticleEditPage: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [markdownContent, setMarkdownContent] = useState('');
   const [activeTab, setActiveTab] = useState('edit');
   const [categories, setCategories] = useState<Category[]>([]);
-
-  const onFinish = async (values: any) => {
-    setSubmitting(true);
-    try {
-      const payload = {
-        ...values,
-        content: markdownContent,
-        authorId: 1, // TODO: 从登录用户中获取
-      };
-      await createArticle(payload);
-      toast.success('文章创建成功');
-      navigate('/admin/articles');
-    } catch (error: any) {
-      toast.error('创建失败，请稍后重试: ' + (error.message || '未知错误'));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchActiveCategories()
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => {
-        toast.error('加载分类失败: ' + error.message);
-      });
+      .then((data) => setCategories(data))
+      .catch((error) => toast.error('加载分类失败: ' + error.message));
   }, []);
+
+  useEffect(() => {
+    if (!slug) return;
+    setLoading(true);
+  }, [slug]);
+
+  const onFinish = async (values: any) => {
+    if (!slug) return;
+    setSubmitting(true);
+    try {
+      console.log('Submitting article with values:', values);
+      toast.success('文章更新成功');
+      navigate('/admin/articles');
+    } catch (error: any) {
+      toast.error('更新失败，请稍后重试: ' + (error.message || '未知错误'));
+    } finally {
+      setSubmitting(false);
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="article-create-container">
       <div className="header-section">
-        <h1 className="page-title">创建新文章</h1>
-        <p className="page-description">填写文章信息并编辑内容</p>
+        <h1 className="page-title">编辑文章</h1>
+        <p className="page-description">修改文章内容与信息</p>
       </div>
 
-      <Card className="form-card">
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          initialValues={{ status: 1, sortOrder: 0 }}
-        >
+      <Card className="form-card" loading={loading}>
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Row gutter={24}>
             <Col span={16}>
               <Form.Item
@@ -83,56 +76,32 @@ const ArticleCreatePage: React.FC = () => {
                 name="title"
                 rules={[{ required: true, message: '请输入文章标题' }]}
               >
-                <Input placeholder="请输入文章标题" allowClear size="large" />
+                <Input allowClear size="large" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item
-                label={<span className="form-label">URL别名</span>}
-                name="slug"
-              >
-                <Input
-                  placeholder="用于SEO的URL别名，可选"
-                  allowClear
-                  size="large"
-                />
+              <Form.Item label="URL别名" name="slug">
+                <Input allowClear size="large" disabled />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item
-            label={<span className="form-label">摘要</span>}
-            name="summary"
-          >
-            <TextArea
-              rows={3}
-              placeholder="简要介绍文章内容"
-              allowClear
-              maxLength={200}
-              showCount
-            />
+          <Form.Item label="摘要" name="summary">
+            <TextArea rows={3} allowClear maxLength={200} showCount />
           </Form.Item>
 
-          <Form.Item
-            label={<span className="form-label">封面图</span>}
-            name="coverImage"
-          >
-            <UploadImage
-              uploadUrl="/api/common/upload/image"
-              maxSizeMB={5}
-              accept="image/png,image/jpeg"
-            />
+          <Form.Item label="封面图" name="coverImage">
+            <UploadImage uploadUrl="/api/common/upload/image" />
           </Form.Item>
 
           <Row gutter={24}>
             <Col span={8}>
               <Form.Item
-                label={<span className="form-label">分类</span>}
+                label="分类"
                 name="categoryId"
                 rules={[{ required: true, message: '请选择分类' }]}
               >
                 <Select
-                  placeholder="请选择分类"
                   allowClear
                   size="large"
                   loading={categories.length === 0}
@@ -145,17 +114,13 @@ const ArticleCreatePage: React.FC = () => {
                 </Select>
               </Form.Item>
             </Col>
-
             <Col span={8}>
-              <Form.Item
-                label={<span className="form-label">排序值</span>}
-                name="sortOrder"
-              >
+              <Form.Item label="排序值" name="sortOrder">
                 <InputNumber
-                  style={{ width: '100%' }}
-                  size="large"
                   min={0}
                   max={100}
+                  size="large"
+                  style={{ width: '100%' }}
                 />
               </Form.Item>
             </Col>
@@ -163,10 +128,7 @@ const ArticleCreatePage: React.FC = () => {
 
           <Row gutter={24}>
             <Col span={8}>
-              <Form.Item
-                label={<span className="form-label">状态</span>}
-                name="status"
-              >
+              <Form.Item label="状态" name="status">
                 <Select size="large">
                   <Option value={1}>发布</Option>
                   <Option value={0}>草稿</Option>
@@ -178,11 +140,7 @@ const ArticleCreatePage: React.FC = () => {
       </Card>
 
       <Card className="editor-card">
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          className="editor-tabs"
-        >
+        <Tabs activeKey={activeTab} onChange={setActiveTab}>
           <TabPane tab="编辑内容" key="edit">
             <TextArea
               rows={18}
@@ -195,7 +153,7 @@ const ArticleCreatePage: React.FC = () => {
           <TabPane tab="预览效果" key="preview">
             <div className="preview-container markdown-body">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {markdownContent || '输入内容后，这里将显示预览效果'}
+                {markdownContent || '暂无内容'}
               </ReactMarkdown>
             </div>
           </TabPane>
@@ -218,11 +176,11 @@ const ArticleCreatePage: React.FC = () => {
           loading={submitting}
           className="action-button submit-button"
         >
-          发布文章
+          保存修改
         </Button>
       </div>
     </div>
   );
 };
 
-export default ArticleCreatePage;
+export default ArticleEditPage;

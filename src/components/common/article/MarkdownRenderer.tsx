@@ -45,35 +45,32 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               return (
                 <code
                   {...props}
-                  className="px-1 py-[0.15rem] rounded bg-base-200 text-base-content font-mono text-sm shadow-sm"
+                  className="px-1 py-[0.15rem] rounded bg-base-200 text-base-content font-mono text-sm"
                 >
                   {children}
                 </code>
               );
-            } else if (match) {
-              const language = match[1];
-              const grammar =
-                Prism.languages[language] || Prism.languages.markup;
-              const html = Prism.highlight(codeString, grammar, language);
-
-              return (
-                <div className="relative w-full my-6 overflow-auto font-mono text-sm text-left rounded-lg shadow bg-base-300 text-base-content theme-code">
-                  <pre className="p-4 m-0">
-                    <code
-                      className={`language-${language}`}
-                      dangerouslySetInnerHTML={{ __html: html }}
-                    />
-                  </pre>
-                </div>
-              );
-            } else {
-              return (
-                <pre className="w-full p-4 my-6 overflow-auto font-mono text-sm text-left rounded-lg shadow bg-base-300 text-base-content">
-                  <code {...props}>{children}</code>
-                </pre>
-              );
             }
+
+            const language = match?.[1] || 'markup';
+            const grammar = Prism.languages[language] || Prism.languages.markup;
+            const html = Prism.highlight(codeString, grammar, language);
+
+            return (
+              <div
+                className="relative w-full my-6 overflow-auto rounded-lg shadow-lg"
+                data-theme="dark"
+              >
+                <pre className="p-4 m-0 font-mono text-sm leading-relaxed text-left text-gray-100 bg-gray-900">
+                  <code
+                    className={`language-${language}`}
+                    dangerouslySetInnerHTML={{ __html: html }}
+                  />
+                </pre>
+              </div>
+            );
           },
+
           img: (props) => (
             <img
               {...props}

@@ -5,7 +5,7 @@ import type {
 } from '../types/article';
 import type { PageResult } from '../types/response';
 import { type TocItem, extractToc } from '../utils/extractToc';
-import { get } from '../utils/http';
+import { get, post } from '../utils/http';
 
 export async function fetchArticleDetailWithToc(slug: string): Promise<{
   article: ArticleDetailVO;
@@ -33,6 +33,5 @@ export async function fetchArticleList(
 }
 
 export async function createArticle(data: CreateArticleParams): Promise<void> {
-  console.log('📦 模拟提交文章:', data);
-  return new Promise((resolve) => setTimeout(resolve, 1000)); // 模拟延迟
+  return await post('/article/create', data);
 }

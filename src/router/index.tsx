@@ -13,6 +13,7 @@ import RequireAuth from '../components/admin/RequireAuth';
 import AuthPage from '../pages/AuthPage';
 import ArticleList from '../pages/admin/ArticleList';
 import ArticleCreatePage from '../pages/admin/article/ArticleCreatePage';
+import ArticleEditPage from '../pages/admin/article/ArticleEditPage';
 
 // 懒加载页面组件
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -71,6 +72,7 @@ const AppRouter: React.FC = () => (
           <Route path="users" element={<UserListPage />} />
           <Route path="articles" element={<ArticleList />} />
           <Route path="articles/create" element={<ArticleCreatePage />} />
+          <Route path="articles/:slug/edit" element={<ArticleEditPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import type { ArticleDetail } from '../types/article';
+import type { ArticleDetailVO } from '../types/article';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import MarkdownRenderer from '../components/common/article/MarkdownRenderer';
 import {
@@ -14,10 +13,11 @@ import {
 import TocMenu from '../components/common/article/TocMenu';
 import { fetchArticleDetailWithToc } from '../api/articleApi';
 import type { TocItem } from '../utils/extractToc';
+import { useParams } from 'react-router-dom';
 
 const PostDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [article, setArticle] = useState<ArticleDetail | null>(null);
+  const [article, setArticle] = useState<ArticleDetailVO | null>(null);
   const [loading, setLoading] = useState(true);
   const [toc, setToc] = useState<TocItem[]>([]);
 
