@@ -1,42 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { ArticleDetailVO } from '../types/article';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import MarkdownRenderer from '../components/common/article/MarkdownRenderer';
+import { useParams } from 'react-router-dom';
 import {
   FiCalendar,
   FiUser,
-  FiGlobe,
   FiBookmark,
   FiHeart,
   FiShare2,
 } from 'react-icons/fi';
-import TocMenu from '../components/common/article/TocMenu';
+import type { ArticleDetailVO } from '../types/article';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import MarkdownRenderer from '../components/common/article/MarkdownRenderer';
 import { fetchArticleDetailWithToc } from '../api/articleApi';
-import type { TocItem } from '../utils/extractToc';
-import { useParams } from 'react-router-dom';
 
 const PostDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [article, setArticle] = useState<ArticleDetailVO | null>(null);
   const [loading, setLoading] = useState(true);
-  const [toc, setToc] = useState<TocItem[]>([]);
-
-  // 用来控制右侧栏是否固定到底部
-
-  // 引用文章内容和右侧栏DOM
   const articleRef = useRef<HTMLDivElement>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (slug) {
       setLoading(true);
       fetchArticleDetailWithToc(slug)
-        .then(({ article, toc }) => {
-          setArticle(article);
-          setToc(toc);
-        })
+        .then(({ article }) => setArticle(article))
         .catch((err) => {
-          // 这里可以加弹窗或错误 UI
           console.error('加载文章失败', err);
         })
         .finally(() => setLoading(false));
@@ -58,10 +45,7 @@ const PostDetailPage: React.FC = () => {
       .replace(/\//g, '-');
   };
 
-  if (loading) {
-    return <LoadingSpinner message="加载文章中..." />;
-  }
-
+  if (loading) return <LoadingSpinner message="加载文章中..." />;
   if (!article) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -84,35 +68,34 @@ const PostDetailPage: React.FC = () => {
   return (
     <div className="container px-4 py-8 mx-auto lg:px-8">
       {/* 顶部封面图 */}
-      <div className="relative mb-12 overflow-hidden rounded-lg shadow-2xl card bg-base-100">
+      <div className="relative mb-12 overflow-hidden shadow-xl rounded-xl">
         <img
           src={article.coverImage || '/bg.jpg'}
           alt={article.title}
           className="object-cover w-full h-64 transition-transform duration-500 ease-in-out md:h-80 lg:h-96 hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
         <div className="absolute text-white bottom-6 left-6 right-6">
-          <h1 className="text-3xl font-extrabold md:text-4xl lg:text-5xl drop-shadow-lg">
+          <h1 className="text-3xl font-extrabold md:text-4xl lg:text-5xl drop-shadow-md">
             {article.title}
           </h1>
-          <div className="flex flex-wrap items-center gap-4 mt-3 text-sm md:text-base">
-            <div className="flex items-center gap-2 badge badge-outline badge-accent">
+          <div className="flex flex-wrap items-center gap-3 mt-3 text-sm md:text-base">
+            <div className="flex items-center gap-2 px-2 py-1 rounded bg-white/10">
               <FiUser className="text-sm" />
               <span>{article.authorNickname}</span>
             </div>
-            <div className="flex items-center gap-2 badge badge-outline">
+            <div className="flex items-center gap-2 px-2 py-1 rounded bg-white/10">
               <FiCalendar className="text-sm" />
               <span>{formatDateTime(article.createTime)}</span>
             </div>
           </div>
         </div>
-
-        {/* 文章操作按钮 */}
+        {/* 顶部操作按钮 */}
         <div className="absolute flex gap-2 top-4 right-4">
           {[FiBookmark, FiHeart, FiShare2].map((Icon, idx) => (
             <button
               key={idx}
-              className="text-white transition btn btn-circle btn-ghost hover:bg-white/20"
+              className="text-white transition hover:bg-white/20 btn btn-circle btn-ghost"
               aria-label="操作按钮"
               type="button"
             >
@@ -123,29 +106,21 @@ const PostDetailPage: React.FC = () => {
       </div>
 
       {/* 主体内容区域 */}
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-        {/* 文章内容区 */}
-        <div
-          className="lg:col-span-8"
-          ref={articleRef}
-          style={{
-            height: 'calc(125vh)',
-            overflowY: 'auto',
-          }}
-        >
-          <div className="transition-shadow rounded-lg shadow-lg card bg-base-100 hover:shadow-xl">
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="lg:col-span-8" ref={articleRef}>
+          <div className="transition-shadow rounded-lg shadow-md card bg-base-100 hover:shadow-xl">
             <div className="card-body">
               <MarkdownRenderer content={article.content} />
             </div>
           </div>
 
-          {/* 文章底部信息 */}
-          <div className="mt-10 rounded-lg shadow-lg card bg-base-100">
+          {/* 作者信息卡片 */}
+          <div className="mt-10 shadow-md rounded-xl card bg-base-100">
             <div className="card-body">
               <div className="flex flex-wrap items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                   <div className="avatar">
-                    <div className="w-12 overflow-hidden rounded-full shadow">
+                    <div className="rounded-full shadow w-14 ring ring-primary ring-offset-base-100 ring-offset-2">
                       <img
                         src={article.authorAvatar || '/default-avatar.png'}
                         alt={article.authorNickname}
@@ -154,7 +129,7 @@ const PostDetailPage: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold">
+                    <h3 className="text-lg font-semibold">
                       {article.authorNickname}
                     </h3>
                     {article.authorBio && (
@@ -164,21 +139,31 @@ const PostDetailPage: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <button className="btn btn-outline btn-primary whitespace-nowrap">
+                <button className="btn btn-outline btn-primary">
                   关注作者
                 </button>
               </div>
 
-              <div className="my-6 divider"></div>
+              <div className="my-6 divider" />
 
-              <div className="flex justify-center gap-8">
-                <button className="flex items-center gap-2 px-6 transition btn btn-outline btn-accent hover:bg-accent hover:text-white">
+              {/* 操作按钮 */}
+              <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+                <button
+                  className="flex items-center gap-2 btn btn-outline btn-accent hover:bg-accent hover:text-white"
+                  aria-label="点赞"
+                >
                   <FiHeart /> 点赞
                 </button>
-                <button className="flex items-center gap-2 px-6 transition btn btn-outline btn-secondary hover:bg-secondary hover:text-white">
+                <button
+                  className="flex items-center gap-2 btn btn-outline btn-secondary hover:bg-secondary hover:text-white"
+                  aria-label="收藏"
+                >
                   <FiBookmark /> 收藏
                 </button>
-                <button className="flex items-center gap-2 px-6 transition btn btn-outline hover:bg-base-300">
+                <button
+                  className="flex items-center gap-2 btn btn-outline hover:bg-base-300"
+                  aria-label="分享"
+                >
                   <FiShare2 /> 分享
                 </button>
               </div>
@@ -186,101 +171,9 @@ const PostDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 右侧栏 */}
-        <div
-          ref={sidebarRef}
-          className="space-y-8 transition-all duration-300 lg:col-span-4"
-        >
-          {/* 作者信息卡片 */}
-          <div className="transition rounded-lg shadow-lg card card-compact lg:card-normal bg-base-100 hover:shadow-xl">
-            <div className="card-body">
-              <h2 className="flex items-center gap-2 card-title text-primary">
-                <FiUser />
-                作者信息
-              </h2>
-              <div className="flex items-center gap-4 mt-4">
-                <div className="avatar">
-                  <div className="w-16 overflow-hidden rounded-full shadow">
-                    <img
-                      src={article.authorAvatar || '/default-avatar.png'}
-                      alt={article.authorNickname}
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="text-lg font-bold">
-                    {article.authorNickname}
-                  </div>
-                  {article.authorBio && (
-                    <div className="max-w-xs mt-1 text-sm text-gray-500 line-clamp-2">
-                      {article.authorBio}
-                    </div>
-                  )}
-                  {article.authorWebsite && (
-                    <a
-                      href={article.authorWebsite}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 mt-2 text-sm link link-primary hover:underline"
-                    >
-                      <FiGlobe /> 作者主页
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 目录卡片 */}
-          {toc.length > 0 && (
-            <div className="transition rounded-lg shadow-lg card card-compact lg:card-normal bg-base-100 hover:shadow-xl">
-              <div className="card-body">
-                <h2 className="flex items-center gap-2 card-title text-secondary">
-                  <FiBookmark />
-                  文章目录
-                </h2>
-                <div className="mt-3 max-h-[60vh] overflow-y-auto pr-2">
-                  <TocMenu toc={toc} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 推荐文章卡片 */}
-          <div className="transition rounded-lg shadow-lg card card-compact lg:card-normal bg-base-100 hover:shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">推荐阅读</h2>
-              <div className="mt-4 space-y-4">
-                {[1, 2, 3].map((item) => (
-                  <div
-                    key={item}
-                    className="flex gap-3 p-3 transition rounded-lg cursor-pointer group hover:bg-base-200"
-                  >
-                    <div className="avatar">
-                      <div className="w-16 overflow-hidden rounded shadow">
-                        <img
-                          src="/placeholder.jpg"
-                          alt="推荐文章"
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 transition group-hover:text-primary">
-                        如何构建高性能的React应用
-                      </h3>
-                      <div className="flex items-center mt-1 text-xs text-gray-500">
-                        <span>技术文章</span>
-                        <span className="mx-2">•</span>
-                        <span>2023-05-12</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* 右侧预留扩展区，比如 TOC 或推荐文章等 */}
+        <div className="hidden lg:block lg:col-span-4">
+          {/* 未来可以放 TOC、相关推荐、标签等 */}
         </div>
       </div>
     </div>
