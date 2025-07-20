@@ -177,7 +177,10 @@ const HomePage: React.FC = () => {
                   title={cat.sortName}
                   onMoreClick={() => console.log(`查看更多: ${cat.sortName}`)}
                 />
-                <ArticleGrid articles={articlesMap[cat.id] ?? []} />
+                <ArticleGrid
+                  loading={!articlesMap[cat.id]}
+                  articles={articlesMap[cat.id] ?? []}
+                />
               </div>
             ))}
           </section>

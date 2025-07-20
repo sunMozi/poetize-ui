@@ -26,8 +26,6 @@ http.interceptors.response.use(
       throw new Error(res.message || '接口异常');
     }
 
-    console.log(res.data);
-
     return res.data;
   },
   (error) => {

@@ -2,9 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiEye, FiCalendar } from 'react-icons/fi';
 import type { Article } from '../../../types/article';
+import SkeletonCard from '../skeleton/SkeletonCard';
 
 interface ArticleGridProps {
   articles: Article[];
+  loading?: boolean;
 }
 
 // 时间格式化工具函数
@@ -21,8 +23,23 @@ const formatDateTime = (dateStr?: string): string => {
   return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
 };
 
-const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
+// 骨架卡片组件
+
+const ArticleGrid: React.FC<ArticleGridProps> = ({
+  articles,
+  loading = false,
+}) => {
   const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <SkeletonCard key={`skeleton-${i}`} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -38,21 +55,16 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
             aria-label={`阅读文章: ${article.title}`}
           >
             <div className="relative h-48 overflow-hidden bg-gradient-to-r from-blue-400 to-purple-500">
-              {article.coverImage && article.coverImage !== 'error' ? (
-                <img
-                  src={article.coverImage}
-                  alt={article.title}
-                  className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-              ) : (
-                <img
-                  src="/bg.jpg"
-                  alt="默认封面"
-                  className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-              )}
+              <img
+                src={
+                  article.coverImage && article.coverImage !== 'error'
+                    ? article.coverImage
+                    : '/bg.jpg'
+                }
+                alt={article.title}
+                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
               <div className="absolute inset-0 flex items-end p-4 bg-gradient-to-t from-black/70 to-transparent">
                 <h3 className="text-xl font-bold text-white line-clamp-2">
                   {article.title}
