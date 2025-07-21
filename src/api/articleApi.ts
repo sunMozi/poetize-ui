@@ -35,3 +35,9 @@ export async function fetchArticleList(
 export async function createArticle(data: CreateArticleParams): Promise<void> {
   return await post('/article/create', data);
 }
+
+export async function getArticleDetailById(articleId: number): Promise<{
+  article: ArticleDetailVO;
+}> {
+  return await get(`/article/${articleId}`);
+}

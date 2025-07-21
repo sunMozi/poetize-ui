@@ -190,7 +190,7 @@ const ArticleListPage: React.FC = () => {
       fixed: 'right',
       render: (_, record) => (
         <Space>
-          <Link to={`/admin/articles/${record.slug}/edit`}>
+          <Link to={`/admin/articles/${record.articleId}/edit`}>
             <Button type="link" size="small">
               编辑
             </Button>

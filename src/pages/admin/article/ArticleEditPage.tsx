@@ -19,13 +19,14 @@ import UploadImage from '../../../components/admin/UploadImage';
 import type { Category } from '../../../types/category';
 import { fetchActiveCategories } from '../../../api/categoryApi';
 import toast from 'react-hot-toast';
+import { getArticleDetailById } from '../../../api/articleApi';
 
 const { Option } = Select;
 const { TextArea } = Input;
 const { TabPane } = Tabs;
 
 const ArticleEditPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { articleId } = useParams<{ articleId: string }>();
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
@@ -34,22 +35,39 @@ const ArticleEditPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // 加载分类
   useEffect(() => {
     fetchActiveCategories()
       .then((data) => setCategories(data))
       .catch((error) => toast.error('加载分类失败: ' + error.message));
   }, []);
 
+  // 加载文章详情
   useEffect(() => {
-    if (!slug) return;
-    setLoading(true);
-  }, [slug]);
+    const fetchArticle = async () => {
+      setLoading(true);
+      try {
+        const res = await getArticleDetailById(Number(articleId));
+        console.log('Fetched article:', res);
+      } catch (error: any) {
+        toast.error('文章详情加载失败: ' + (error.message || '未知错误'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticle();
+  }, [articleId, form]);
 
   const onFinish = async (values: any) => {
-    if (!slug) return;
+    if (!articleId) return;
     setSubmitting(true);
     try {
-      console.log('Submitting article with values:', values);
+      console.log('Submitting article with values:', {
+        ...values,
+        content: markdownContent,
+      });
+      // TODO: 调用更新接口
       toast.success('文章更新成功');
       navigate('/admin/articles');
     } catch (error: any) {
